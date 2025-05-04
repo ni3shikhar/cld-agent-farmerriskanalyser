@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Farmer Copilot</title>
+  <style>
+    body { font-family: sans-serif; padding: 20px; }
+    input, select, button { margin: 10px 0; display: block; padding: 10px; width: 300px; }
+  </style>
+</head>
+<body>
+
+  <h2>Farmer Copilot - Weather Risk Advisor</h2>
+
+  <form id="copilotForm">
+    <label for="pin">Enter PIN Code:</label>
+    <input type="text" id="pin" name="pin" required>
+
+    <label for="crop">Enter Crop Name:</label>
+    <input type="text" id="crop" name="crop" required>
+
+    <button type="submit">Get Recommendation</button>
+  </form>
+
+  <div id="result" style="margin-top: 20px;"></div>
+
+  <script>
+    document.getElementById('copilotForm').addEventListener('submit', async function(event) {
+      event.preventDefault();
+
+      const pin = document.getElementById('pin').value;
+      const crop = document.getElementById('crop').value;
+
+      const response = await fetch('https://<your-backend-url>/analyze', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ pin_code: pin, crop_name: crop })
+      });
+
+      const data = await response.json();
+      const output = `
+        <h3>Recommendation</h3>
+        <p><strong>Location:</strong> ${data.location}</p>
+        <p><strong>Crop:</strong> ${data.crop}</p>
+        <p><strong>Forecast:</strong> ${data.forecast_summary}</p>
+        <p><strong>Risks:</strong> ${data.detected_risks.join(', ')}</p>
+        <p><strong>Actions:</strong></p>
+        <ul>${data.recommendations.map(r => `<li>${r}</li>`).join('')}</ul>
+      `;
+      document.getElementById('result').innerHTML = output;
+    });
+  </script>
+
+</body>
+</html>
